@@ -37,6 +37,7 @@
 //                 </svg>
 //             </div>
 
+
 //             <div className="flex flex-col md:flex-row gap-[70px] mt-10">
 //                 <div className="w-full md:w-[50%]">
 //                     <Image
