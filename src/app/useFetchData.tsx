@@ -9,14 +9,20 @@ const useFetchData = (slug: string) => {
     const [isError, setIsError] = useState(false);
     const [country, setCountry] = useState<Country | null>(null);
 
-    useEffect(() => {
-        getItemFromLocalStorage();
+    const getItemFromLocalStorage = useCallback(() => {
+        const countryListFromLocalStorage = localStorage.getItem("countryList");
+        if (countryListFromLocalStorage) {
+            const parsedItems: Country[] = JSON.parse(countryListFromLocalStorage);
+            setCountryList(parsedItems);
+            setFilterdCountryList(parsedItems);
+        } else {
+            fetchCountryList();
+        }
     }, []);
 
     useEffect(() => {
-        if (!slug) return;
-        fetchCountry(slug);
-    }, [slug]);
+        getItemFromLocalStorage();
+    }, [getItemFromLocalStorage]);
 
     const fetchCountry = async (slug: string) => {
         setIsLoading(true);
@@ -32,20 +38,10 @@ const useFetchData = (slug: string) => {
         }
     };
 
-    const getItemFromLocalStorage = useCallback(() => {
-        const countryListFromLocalStorage = localStorage.getItem("countryList");
-        if (countryListFromLocalStorage) {
-            const parsedItems: Country[] = JSON.parse(countryListFromLocalStorage);
-            setCountryList(parsedItems);
-            setFilterdCountryList(parsedItems);
-        } else {
-            fetchCountryList();
-        }
-    }, []);
-
     useEffect(() => {
-        getItemFromLocalStorage();
-    }, [getItemFromLocalStorage]);
+        if (!slug) return;
+        fetchCountry(slug);
+    }, [slug]);
 
     const fetchCountryList = async () => {
         setIsLoading(true);
