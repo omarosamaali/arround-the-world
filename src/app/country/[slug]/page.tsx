@@ -1,16 +1,17 @@
 "use client";
 import Image from "next/image";
 import useFetchData from "../../useFetchData";
-import { FC } from "react";
+// import { Metadata } from 'next';
 
-interface CountryPageProps {
-    params: { slug: string };
-}
-// import { PageProps } from "next";
+// Define the page type compatible with Next.js dynamic routing
+type CountryPageProps = {
+    params: {
+        slug: string
+    };
+};
 
-
-const CountryPage: FC<CountryPageProps> = ({ params }) => {
-    const { country, isLoading, isError } = useFetchData(params.slug ?? ""); 
+export default function CountryPage({ params }: CountryPageProps) {
+    const { country, isLoading, isError } = useFetchData(params.slug ?? "");
 
     const handleBack = () => {
         window.history.back();
@@ -40,7 +41,7 @@ const CountryPage: FC<CountryPageProps> = ({ params }) => {
                     <Image
                         src={country?.flags?.svg ?? "/default-flag.svg"}
                         className="w-full md:min-w-[500px]"
-                        alt="Description"
+                        alt={`Flag of ${country?.name?.common}`}
                         width={500}
                         height={300}
                     />
@@ -50,37 +51,44 @@ const CountryPage: FC<CountryPageProps> = ({ params }) => {
                     <div className="grid grid-cols-2 gap-4 justify-between mt-7">
                         <div className="mt-5">
                             <div>
-                                <span>Native Name: </span>
+                                <span className="font-semibold">Native Name: </span>
                                 <span>{country?.name?.common}</span>
                             </div>
                             <div className="mt-5">
-                                <span>Population: </span>
+                                <span className="font-semibold">Population: </span>
                                 <span>{(country?.population ?? 0).toLocaleString()}</span>
                             </div>
                             <div className="mt-5">
-                                <span>Sub Region: </span>
+                                <span className="font-semibold">Sub Region: </span>
                                 <span>{country?.subregion ?? "Unknown"}</span>
                             </div>
                             <div className="mt-5">
-                                <span>Capital: </span>
-                                <span>{country?.capital}</span>
+                                <span className="font-semibold">Capital: </span>
+                                <span>{country?.capital?.[0] ?? "N/A"}</span>
                             </div>
                         </div>
                         <div className="mt-5">
                             <div>
-                                <span>Top Level Domain: </span>
-                                <span>{country?.tld?.join(", ")}</span>
+                                <span className="font-semibold">Top Level Domain: </span>
+                                <span>{country?.tld?.join(", ") ?? "N/A"}</span>
                             </div>
                             <div className="mt-5">
-                                <span>Currencies: </span>
+                                <span className="font-semibold">Currencies: </span>
                                 <span>
-                                    {country?.currencies &&
-                                        Object.values(country?.currencies).map(({ name, symbol }) => `${name} (${symbol})`).join(", ")}
+                                    {country?.currencies
+                                        ? Object.values(country.currencies)
+                                            .map(({ name, symbol }) => `${name} (${symbol})`)
+                                            .join(", ")
+                                        : "N/A"}
                                 </span>
                             </div>
                             <div className="mt-5">
-                                <span>Language: </span>
-                                <span>{country?.languages && Object.values(country?.languages).join(", ")}</span>
+                                <span className="font-semibold">Languages: </span>
+                                <span>
+                                    {country?.languages
+                                        ? Object.values(country.languages).join(", ")
+                                        : "N/A"}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -88,6 +96,11 @@ const CountryPage: FC<CountryPageProps> = ({ params }) => {
             </div>
         </>
     );
-};
+}
 
-export default CountryPage;
+// Optional: Metadata generation
+export async function generateMetadata({ params }: CountryPageProps) {
+    return {
+        title: `${params.slug} - Country Details`
+    };
+}
