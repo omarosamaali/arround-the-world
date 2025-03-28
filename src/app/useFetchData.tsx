@@ -2,7 +2,7 @@
 import { Country } from "./types";
 import { useEffect, useState, useCallback } from "react";
 
-const useFetchData = (slug: string) => {
+const useFetchData = (slug: string = "") => {
     const [countryList, setCountryList] = useState<Country[]>([]);
     const [filterdCountryList, setFilterdCountryList] = useState<Country[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -21,17 +21,22 @@ const useFetchData = (slug: string) => {
     }, []);
 
     useEffect(() => {
-        getItemFromLocalStorage();
+        // Only run on client side
+        if (typeof window !== 'undefined') {
+            getItemFromLocalStorage();
+        }
     }, [getItemFromLocalStorage]);
 
     const fetchCountry = async (slug: string) => {
+        if (!slug) return;
+
         setIsLoading(true);
         try {
             const response = await fetch(`https://restcountries.com/v3.1/name/${slug}`);
             const data: Country[] = await response.json();
             setCountry(data[0]);
         } catch (e) {
-            console.log(e);
+            console.error(e);
             setIsError(true);
         } finally {
             setIsLoading(false);
@@ -53,13 +58,20 @@ const useFetchData = (slug: string) => {
             localStorage.setItem("countryList", JSON.stringify(data));
         } catch (err) {
             setIsError(true);
-            console.log(err);
+            console.error(err);
         } finally {
             setIsLoading(false);
         }
     };
 
-    return { countryList, filterdCountryList, isLoading, isError, setFilterdCountryList, country };
+    return {
+        countryList,
+        filterdCountryList,
+        isLoading,
+        isError,
+        setFilterdCountryList,
+        country
+    };
 };
 
 export default useFetchData;
